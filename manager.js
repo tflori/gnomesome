@@ -322,22 +322,24 @@ var Manager = new Lang.Class({
     },
     window_added: function(workspace, window) {
         logger.debug("Window added (" + window.get_wm_class() + ") " + workspace.index() + " " + window.get_monitor());
-
-        // exclude this.floaters from tiling
-        if (this.floaters.indexOf(window.get_wm_class()) > -1) {
-            return;
-        }
-
         var gslayout = this.layouts[workspace.index()][window.get_monitor()];
         var gswindow = window.gswindow;
         if (window.gswindow) {
-            gslayout.addGSWindow(window.gswindow);
             logger.debug("Window already registered as gswindow");
         } else {
             gswindow = new GSWindow.GSWindow(window, gslayout);
             window.gswindow = gswindow;
-            gslayout.addGSWindow(gswindow);
         }
+
+
+        // exclude this.floaters from tiling
+        if (this.floaters.indexOf(window.get_wm_class()) > -1) {
+            gswindow.floating = true;
+            return;
+        }
+
+        gslayout.addGSWindow(gswindow);
+
         // attempt to relayout, but we need to wait until the window is ready
         logger.debug("Waiting until window is ready");
         var attempt = function(remainingAttempts) {
