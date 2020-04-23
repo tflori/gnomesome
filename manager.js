@@ -30,7 +30,7 @@ var Manager = new Lang.Class({
         const workspace_manager = Utils.DisplayWrapper.getWorkspaceManager();
 
         this.layouts = [];
-
+        this.floaters = ['Gthumb'];
 
         let extension = ExtensionUtils.getCurrentExtension();
         let schema = extension.metadata['settings-keybindings'];
@@ -321,7 +321,13 @@ var Manager = new Lang.Class({
 
     },
     window_added: function(workspace, window) {
-        logger.debug("Window added " + workspace.index() + " " + window.get_monitor());
+        logger.debug("Window added (" + window.get_wm_class() + ") " + workspace.index() + " " + window.get_monitor());
+
+        // exclude this.floaters from tiling
+        if (this.floaters.indexOf(window.get_wm_class()) > -1) {
+            return;
+        }
+
         var gslayout = this.layouts[workspace.index()][window.get_monitor()];
         var gswindow = window.gswindow;
         if (window.gswindow) {
